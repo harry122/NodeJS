@@ -1,0 +1,69 @@
+we are here to read the file !Here we are appending data asyncHere we are appending data async.
+Writing an evaluator
+Let’s say you want to implement an interactive command line for JavaScript (such as [1]). On one hand, you would need to get the graphical user interface right: The user inputs JavaScript code, the command line evaluates the code and displays the result. On the other hand, you would have to implement the evaluation. That’s what we will take on here. It is more complex that it initially seems and teaches us a lot about eval. For starters, let’s write a constructor Evaluator:
+    function Evaluator() {
+    }
+    Evaluator.prototype.evaluate = function (str) {
+        return JSON.stringify(eval(str));
+    };
+To use the evaluator, we create an instance and send JavaScript code to it:
+    > var e = new Evaluator();
+
+    > e.evaluate("Math.pow(2, 53)")
+    '9007199254740992'
+
+    > e.evaluate("3 * 7")
+    '21'
+
+    > e.evaluate("'foo'+'bar'")
+    '"foobar"'
+JSON.stringify is used so that the evaluation results can be shown to the user and look like the input. Without stringify, things look as follows:
+    > console.log(123)  // OK
+    123
+
+    > console.log("abc")  // not OK
+    abc
+With stringify, everything looks OK:
+    > console.log(JSON.stringify(123))
+    123
+
+    > console.log(JSON.stringify("abc"))
+    "abc"
+Note that undefined is not valid JSON, but stringify converts it to undefined (the value, not the string), which is fine for our purposes. What we have implemented so far works for basic things, but still has several problems. Let’s tackle them one at a time.
+Problem: declarations
+You can evaluate variable and function declarations, but they are forgotten immediately afterwards:
+    > e.evaluate("var x = 12;")
+    undefined
+
+    > console.log(JSON.stringify("abc"))
+    "abc"
+Note that undefined is not valid JSON, but stringify converts it to undefined (the value, not the string), which is fine for our purposes. What we have implemented so far works for basic things, but still has several problems. Let’s tackle them one at a time.
+Problem: declarations
+You can evaluate variable and function declarations, but they are forgotten immediately afterwards:
+    > e.evaluate("var x = 12;")
+    undefined
+    > e.evaluate("x")
+    ReferenceError: x is not defined
+How do we fix this? The following code is a solution:
+    function Evaluator() {
+        this.env = {};
+    }
+    Evaluator.prototype.evaluate = function (str) {
+        str = rewriteDeclarations(str);
+        var __environment__ = this.env;  // (1)
+        with (__environment__) {  // (2)
+            return JSON.stringify(eval(str));
+        }
+    };
+    function rewriteDeclarations(str) {
+        // Prefix a newline so that search and replace is simpler
+        str = "\n" + str;
+    
+        str = str.replace(/\nvar\s+(\w+)\s*=/g,
+                          "\n__environment__.$1 =");  // (3)
+        str = str.replace(/\nfunction\s+(\w+)/g,
+                          "\n__environment__.$1 = function");
+    
+        return str.slice(1); // remove prefixed newline
+    }
+

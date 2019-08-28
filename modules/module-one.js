@@ -8,7 +8,7 @@ function square(n){
     console.log(n*n);
 }
 
-let temp = 28;
+// let temp = 28;
 
 module.exports.calc = calc;
 module.exports.square = square;
