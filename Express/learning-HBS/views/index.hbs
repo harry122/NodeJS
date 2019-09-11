@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    {{> header}}
+
+    <h1>Studying HBS</h1>
+
+    {{name}}
+
+    <ul>
+        {{#each hobbies}}
+            <li>{{this}}</li>
+        {{/each}}
+    </ul>
+
+    <h3>Product Description</h3>
+    <p><b>Name :</b> {{product.name}}</p>
+    <p><b>Price :</b> {{product.price}}</p>
+    <p><b>Rating :</b> {{product.rating}}</p>
+    <p>Access using index : {{hobbies.[1]}}</p>
+
+    {{#if userName}}
+        <p>Welcome {{userName}}</p> 
+    {{else}}
+        <p>Enter user Name</p>
+    {{/if}}
+
+
+    <h3>All Products</h3>
+    
+    {{#each productList}}
+        <p><b>Name :</b>{{this.name}}</p>
+         <p><b>Price :</b>{{this.price}}</p>
+    {{/each}}
+
+
+
+
+
+
+
+
+</body>
+</html>
